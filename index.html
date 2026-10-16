@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Himno Hurrita N.º 6 - Recreación Acústica Milenaria</title>
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e293b);
+            color: #f8fafc;
+            font-family: system-ui, -apple-system, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background: rgba(30, 41, 59, 0.7);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 450px;
+        }
+        h1 { font-size: 22px; margin-bottom: 10px; color: #38bdf8; }
+        p { color: #94a3b8; font-size: 14px; margin-bottom: 30px; }
+        button {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 14px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+        }
+        button:hover { background: #7dd3fc; transform: translateY(-2px); }
+        button:active { transform: translateY(0); }
+        .status { margin-top: 20px; font-style: italic; color: #cbd5e1; font-size: 13px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Himno Hurrita N.º 6</h1>
+        <p>Ugarit, 1400 a. C. — Recreación armónica con síntesis de lira antigua a 96 kHz emulada Electronicamente.</p>
+        <button id="playBtn">Reproducir Audio Milenario</button>
+        <div class="status" id="status">Haz clic para iniciar la secuencia...</div>
+    </div>
+
+    <script>
+        const melody = [
+            { freq: 220.00, duration: 1.2 }, // A3
+            { freq: 246.94, duration: 0.6 }, // B3
+            { freq: 277.18, duration: 1.2 }, // C#4
+            { freq: 329.63, duration: 1.8 }, // E4
+            { freq: 293.66, duration: 1.2 }, // D4
+            { freq: 277.18, duration: 0.6 }, // C#4
+            { freq: 246.94, duration: 1.2 }, // B3
+            { freq: 220.00, duration: 2.4 }, // A3
+            { freq: 196.00, duration: 1.2 }, // G3
+            { freq: 220.00, duration: 3.0 }  // A3 (Resolución)
+        ];
+
+        document.getElementById('playBtn').addEventListener('click', async () => {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            const ctx = new AudioContext();
+            const status = document.getElementById('status');
+            
+            status.textContent = "Transmitiendo frecuencias armónicas...";
+
+            let time = ctx.currentTime + 0.1;
+
+            for (let note of melody) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                // Onda triangular para emular el cuerpo acústico de una lira de 9 cuerdas
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(note.freq, time);
+
+                // Envolvente de cuerda pulsada (ataque rápido y decaimiento exponencial natural)
+                gain.gain.setValueAtTime(0, time);
+                gain.gain.linearRampToValueAtTime(0.4, time + 0.04);
+                gain.gain.exponentialRampToValueAtTime(0.0001, time + note.duration);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(time);
+                osc.stop(time + note.duration);
+
+                time += note.duration + 0.15; // Espacio de resonancia entre notas
+            }
+
+            setTimeout(() => {
+                status.textContent = "Reproducción finalizada con éxito.";
+            }, (time - ctx.currentTime) * 1000);
+        });
+    </script>
+</body>
+</html>
